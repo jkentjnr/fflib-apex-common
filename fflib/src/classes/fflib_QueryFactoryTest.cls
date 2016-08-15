@@ -35,6 +35,8 @@ private class fflib_QueryFactoryTest {
 		qf.selectFields( new Set<String>{'acCounTId', 'account.name'} );
 		qf.selectFields( new List<String>{'homePhonE','fAX'} );
 		qf.selectFields( new List<Schema.SObjectField>{ Contact.Email, Contact.Title } );
+		System.assert(qf.getSelectedFields() != null);
+		System.assert(qf.getSelectedFields().size() == 8);
 	}
 
 	@isTest
@@ -108,7 +110,7 @@ private class fflib_QueryFactoryTest {
 
 	@isTest
 	static void invalidFieldTests(){
-		List<fflib_QueryFactory.InvalidFieldException> exceptions = new List<fflib_QueryFactory.InvalidFieldException>();
+		List<Exception> exceptions = new List<Exception>();
 		fflib_QueryFactory qf = new fflib_QueryFactory(Contact.SObjectType);
 		try{
 			qf.selectField('Not_a_field');
@@ -250,7 +252,6 @@ private class fflib_QueryFactoryTest {
 		String fldString = qfld.toString();
 		System.assert(fldString.equals('Account.Name'));
 	}
-
 	@isTest
 	static void queryIdFieldNotEqualsWrongObjType(){
 		fflib_QueryFactory.QueryField qfld = new fflib_QueryFactory.QueryField(new List<Schema.SObjectField>{
@@ -631,7 +632,6 @@ private class fflib_QueryFactoryTest {
 			User.SObjectType.fields.Name
 		});
 		System.assertEquals(-2, qf.compareTo(otherType));
-		System.assertEquals(-2, qf.compareTo(null));
 		System.assertEquals(0, qf.compareTo(qf));
 		System.assertEquals(
 			0, 
@@ -776,35 +776,6 @@ private class fflib_QueryFactoryTest {
 		System.assert(qf.getSubselectQueries().get(0).getOrderings().size() == 0);
 		System.assert(qf2.getSubselectQueries().get(0).getOrderings().size() == 1);
 	}
-	
-	@isTest
-	static void testSoql_unsortedSelectFields(){
-		//Given
-		fflib_QueryFactory qf = new fflib_QueryFactory(User.SObjectType);
-		qf.selectFields(new List<String>{
-			'Id',
-			'FirstName',
-			'LastName',
-			'CreatedBy.Name',
-			'CreatedBy.Manager',
-			'LastModifiedBy.Email'
-		});
-
-		qf.setSortSelectFields(false);
-
-		String orderedQuery =
-			'SELECT '
-			+'FirstName, Id, LastName, ' //less joins come first, alphabetically
-			+'CreatedBy.ManagerId, CreatedBy.Name, LastModifiedBy.Email ' //alphabetical on the same number of joins'
-			+'FROM User';
-
-		//When
-		String actualSoql = qf.toSOQL();
-
-		//Then		
-		System.assertNotEquals(orderedQuery, actualSoql);
-	}
-
 
 	public static User createTestUser_noAccess(){
 		User usr;
