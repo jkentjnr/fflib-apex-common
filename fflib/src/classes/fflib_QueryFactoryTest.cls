@@ -248,6 +248,7 @@ private class fflib_QueryFactoryTest {
 			Schema.Account.SObjectType.fields.name
 		});
 		String fldString = qfld.toString();
+		System.assert(fldString.equals('Account.Name'));
 	}
 
 	@isTest
