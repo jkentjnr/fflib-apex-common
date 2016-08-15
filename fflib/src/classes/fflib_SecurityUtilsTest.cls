@@ -236,6 +236,8 @@ private class fflib_SecurityUtilsTest {
 	@isTest
 	static void sysadmin_objectAndField_access() {
 		User testUser = setupTestUser('System Administrator');
+		System.assert(testUser != null);
+		
 		System.runAs(testUser){
 			fflib_SecurityUtils.checkInsert(
 				Account.SObjectType,
